@@ -1,0 +1,396 @@
+/* Hand-written tweaks adopted into every open shadow root (see src/shadow-styles.js).
+   Theme variables inherit into shadow trees, so var(--cc-*) works here. */
+
+/* chat log */
+.messages {
+  font-family: var(--cc-body) !important;
+  scrollbar-width: thin;
+}
+.message-name {
+  font-family: var(--cc-display) !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase;
+}
+.mine .message-name { color: var(--cc-accent) !important; }
+.mine .message-name-end { color: var(--cc-accent-2) !important; }
+.other-team .message-name { color: var(--cc-accent-2) !important; }
+.message a:link,
+.message a:visited { color: var(--cc-accent-3) !important; }
+.system-message-container {
+  font-family: var(--cc-display) !important;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-size: 12px !important;
+}
+.messages::-webkit-scrollbar-thumb,
+::-webkit-scrollbar-thumb {
+  background-color: rgba(var(--cc-accent-rgb), 0.35) !important;
+  border-radius: 0 !important;
+}
+
+/* ---------- custom icon rings (local only) ----------
+   .cc-ring sits exactly over the icon circle (Riot's icon is 76% of the crest,
+   centred). Animations only use transform / opacity so they stay smooth. */
+.lol-regalia-crest-root[data-cc-ring] { position: relative; }
+/* our ring replaces Riot's level ring / ranked border around the icon */
+.lol-regalia-crest-root[data-cc-ring] .lol-regalia-ranked-border-container,
+.lol-regalia-crest-root[data-cc-ring] .lol-regalia-themed-level-ring,
+.lol-regalia-crest-root[data-cc-ring] lol-uikit-themed-level-ring,
+.lol-regalia-crest-root[data-cc-ring] lol-uikit-themed-level-ring-v2,
+.lol-regalia-crest-root[data-cc-ring] .lol-regalia-none-border-container,
+.lol-regalia-crest-root[data-cc-ring] .lol-regalia-rank-division-wrapper,
+.lol-regalia-crest-root[data-cc-ring] .regalia-crest-wing,
+.lol-regalia-crest-root[data-cc-ring] .regalia-crest-idle {
+  opacity: 0 !important;
+  transition: opacity 0.4s var(--cc-ease, ease);
+}
+
+.cc-ring {
+  position: absolute;
+  left: 12%;
+  top: 12%;
+  width: 76%;
+  height: 76%;
+  z-index: 5;
+  box-sizing: border-box;
+  border-radius: 50%;
+  pointer-events: none;
+  animation: cc-ring-in 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.cc-ring::before,
+.cc-ring::after {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  box-sizing: border-box;
+  pointer-events: none;
+}
+@keyframes cc-ring-in { from { opacity: 0; transform: scale(1.15); } }
+@keyframes cc-ring-spin { to { transform: rotate(360deg); } }
+@keyframes cc-ring-breathe { 0%, 100% { opacity: 0.35; } 50% { opacity: 1; } }
+@keyframes cc-ring-ripple { from { transform: scale(1); opacity: 0.9; } to { transform: scale(1.35); opacity: 0; } }
+@keyframes cc-ring-jitter-a { 0%, 86%, 100% { transform: none; opacity: 0; } 88% { transform: translate(-3px, 0); opacity: 1; } 92% { transform: translate(2px, 1px); opacity: 1; } 95% { opacity: 0; } }
+@keyframes cc-ring-jitter-b { 0%, 87%, 100% { transform: none; opacity: 0; } 89% { transform: translate(3px, 0); opacity: 1; } 93% { transform: translate(-2px, -1px); opacity: 1; } 96% { opacity: 0; } }
+
+/* neon: solid ring + breathing glow */
+.cc-ring[data-style="neon"] { border: 2px solid var(--cc-accent); box-shadow: 0 0 8px rgba(var(--cc-accent-rgb), 0.6), inset 0 0 8px rgba(var(--cc-accent-rgb), 0.35); }
+.cc-ring[data-style="neon"]::after { inset: -5px; box-shadow: 0 0 16px 4px rgba(var(--cc-accent-rgb), 0.75); animation: cc-ring-breathe 3s ease-in-out infinite; }
+
+/* dual: inner accent ring + slowly turning dashed outer ring in the 2nd colour */
+.cc-ring[data-style="dual"] { border: 2px solid var(--cc-accent); box-shadow: 0 0 10px rgba(var(--cc-accent-rgb), 0.45); }
+.cc-ring[data-style="dual"]::after { inset: -7px; border: 2px dashed var(--cc-accent-2); animation: cc-ring-spin 14s linear infinite; }
+
+/* pulse: ripples spreading out from the ring */
+.cc-ring[data-style="pulse"] { border: 2px solid var(--cc-accent); }
+.cc-ring[data-style="pulse"]::before,
+.cc-ring[data-style="pulse"]::after { inset: -2px; border: 2px solid var(--cc-accent); animation: cc-ring-ripple 2.4s cubic-bezier(0.22, 1, 0.36, 1) infinite; }
+.cc-ring[data-style="pulse"]::after { animation-delay: 1.2s; }
+
+/* glitch: red / cyan copies that jump out of line */
+.cc-ring[data-style="glitch"] { border: 2px solid var(--cc-accent); }
+.cc-ring[data-style="glitch"]::before { inset: -2px; border: 2px solid var(--cc-accent-2); animation: cc-ring-jitter-a 2.6s steps(1) infinite; }
+.cc-ring[data-style="glitch"]::after { inset: -2px; border: 2px solid var(--cc-accent-3); animation: cc-ring-jitter-b 2.6s steps(1) infinite; }
+
+/* scanner: a light sweeping round a thin ring */
+.cc-ring[data-style="scan"] { border: 1px solid rgba(var(--cc-accent-rgb), 0.35); }
+.cc-ring[data-style="scan"]::before {
+  inset: -3px;
+  background: conic-gradient(from 0deg, transparent 0 65%, rgba(var(--cc-accent-rgb), 0.2) 80%, var(--cc-accent) 100%);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 4px), #000 calc(100% - 3px));
+  animation: cc-ring-spin 1.8s linear infinite;
+}
+
+/* hazard: yellow / black segments turning slowly */
+.cc-ring[data-style="hazard"]::before {
+  inset: -4px;
+  background: repeating-conic-gradient(var(--cc-accent) 0 12deg, rgba(5, 5, 7, 0.9) 12deg 24deg);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 5px), #000 calc(100% - 4px));
+  animation: cc-ring-spin 10s linear infinite;
+}
+.cc-ring[data-style="hazard"]::after { inset: -6px; border: 1px solid var(--cc-accent-2); }
+
+/* small avatars without a crest (e.g. friends list): a simple matching ring */
+[data-cc-border] {
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px var(--cc-accent), 0 0 10px rgba(var(--cc-accent-rgb), 0.5) !important;
+}
+[data-cc-border="dual"] {
+  box-shadow: 0 0 0 2px var(--cc-accent), 0 0 0 4px rgba(5, 5, 7, 0.9), 0 0 0 5px var(--cc-accent-2) !important;
+}
+[data-cc-border="glitch"] {
+  box-shadow: -1px 0 0 2px var(--cc-accent-2), 1px 0 0 2px var(--cc-accent-3), 0 0 0 2px var(--cc-accent) !important;
+}
+
+/* ---------- custom banner (local only): ours fills the banner, Riot's hidden ---------- */
+:host([data-cc-banner]) uikit-video,
+:host([data-cc-banner]) .regalia-banner-video,
+:host([data-cc-banner]) .regalia-banner-asset-static {
+  display: none !important;
+}
+:host([data-cc-banner]) .regalia-banner-v2-root { overflow: hidden; }
+/* contained in the banner: never paints over the crest, name or anything else */
+:host([data-cc-banner]) { isolation: isolate; }
+.cc-banner-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+  animation: cc-banner-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes cc-banner-in { from { opacity: 0; } }
+
+/* ---------- our ring follows the crest: hidden while Riot hides the crest ---------- */
+.lol-regalia-crest-root.hidden > .cc-ring { display: none !important; }
+
+/* ---------- custom icon laid over the crest icon (keeps GIFs playing) ---------- */
+.lol-regalia-summoner-icon { position: relative; }
+.cc-icon-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+/* ---------- image borders (assets/borders): frame opening = 60% of the image ---------- */
+.cc-ring[data-style="image"] { border: 0; box-shadow: none; }
+.cc-ring[data-style="image"] > img {
+  position: absolute;
+  left: -33.333%;
+  top: -33.333%;
+  width: 166.667%;
+  height: 166.667%;
+  pointer-events: none;
+}
+
+/* ---------- top bar (found at runtime, see src/topbar.js) ---------- */
+[data-cc-topbar] {
+  position: relative;
+  align-items: stretch;
+  background:
+    linear-gradient(180deg, rgba(var(--cc-accent-rgb), 0.06), transparent 70%),
+    rgba(8, 8, 11, 0.55) !important;
+  box-shadow: inset 0 0 0 1px var(--cc-line), inset 0 -2px 0 rgba(var(--cc-accent-rgb), 0.35);
+  clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+}
+[data-cc-nav-item] {
+  position: relative;
+  color: var(--cc-muted) !important;
+  font-family: var(--cc-display) !important;
+  letter-spacing: 0.18em !important;
+  text-transform: uppercase;
+  transition: color 0.25s cubic-bezier(0.22, 1, 0.36, 1), background 0.25s cubic-bezier(0.22, 1, 0.36, 1) !important;
+}
+[data-cc-nav-item]:hover {
+  color: var(--cc-text) !important;
+  background: linear-gradient(0deg, rgba(var(--cc-accent-rgb), 0.12), transparent) !important;
+}
+/* separators between entries */
+[data-cc-nav-item] + [data-cc-nav-item]::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 25%;
+  bottom: 25%;
+  width: 1px;
+  background: linear-gradient(transparent, var(--cc-line), transparent);
+  pointer-events: none;
+}
+/* active entry: accent text + glowing bar */
+[data-cc-nav-item]:is([active], .active, .selected, [selected], [aria-selected="true"], [aria-current]) {
+  color: var(--cc-accent) !important;
+  background: linear-gradient(0deg, rgba(var(--cc-accent-rgb), 0.18), transparent) !important;
+  text-shadow: 0 0 10px rgba(var(--cc-accent-rgb), 0.6);
+}
+[data-cc-nav-item]::after {
+  content: "";
+  position: absolute;
+  left: 14%;
+  right: 14%;
+  bottom: 0;
+  height: 2px;
+  background: var(--cc-accent);
+  box-shadow: 0 0 10px rgba(var(--cc-accent-rgb), 0.8);
+  transform: scaleX(0);
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;
+}
+[data-cc-nav-item]:hover::after { transform: scaleX(0.6); }
+[data-cc-nav-item]:is([active], .active, .selected, [selected], [aria-selected="true"], [aria-current])::after { transform: scaleX(1); }
+
+/* our icons replace Riot's where the label is recognised */
+[data-cc-ic] :is(img, svg, [class*="icon"]):not(.cc-nav-ic) { display: none !important; }
+.cc-nav-ic {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  margin-right: 8px;
+  vertical-align: -3px;
+  background: currentColor;
+  -webkit-mask: no-repeat center / contain;
+  mask: no-repeat center / contain;
+  flex-shrink: 0;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+[data-cc-nav-item]:hover .cc-nav-ic { transform: translateY(-1px) scale(1.08); }
+
+/* ---------- top bar tabs (inside each lol-uikit-navigation-item) ---------- */
+:host(.main-navigation-menu-item) .section-glow-container { display: none !important; }
+:host(.main-navigation-menu-item) .section { position: relative; }
+:host(.main-navigation-menu-item) .section::after {
+  content: "";
+  position: absolute;
+  left: 18%;
+  right: 18%;
+  bottom: 6px;
+  height: 2px;
+  background: var(--cc-accent);
+  box-shadow: 0 0 10px rgba(var(--cc-accent-rgb), 0.8);
+  transform: scaleX(0);
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;
+}
+:host(.main-navigation-menu-item:hover) .section::after { transform: scaleX(0.45); }
+:host(.main-navigation-menu-item) .section.active::after { transform: scaleX(1); }
+
+/* ---------- challenge crystal under crests: hidden for a cleaner crest ---------- */
+.regalia-crystal-element-container,
+.regalia-crystal-element { display: none !important; }
+
+/* League / Classic / TFT tab labels centred in their equal-width tabs */
+:host(.menu_item_navbar_league) .section,
+:host(.menu_item_navbar_demacia) .section,
+:host(.menu_item_navbar_tft) .section {
+  display: flex !important;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* ---------- every close (X) button: square cut-corner, red on hover ---------- */
+.lol-uikit-close-button {
+  border-radius: 0 !important;
+  background: rgba(8, 8, 11, 0.88) !important;
+  box-shadow: inset 0 0 0 1px var(--cc-line) !important;
+  clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
+  transition: background 0.25s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.25s, transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.lol-uikit-close-button .contents {
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+.lol-uikit-close-button:hover {
+  background: var(--cc-accent-2) !important;
+  box-shadow: 0 0 14px rgba(var(--cc-accent-2-rgb), 0.6) !important;
+}
+.lol-uikit-close-button:active { transform: scale(0.9); }
+
+/* ---------- party / queue panel (top right): no green / blue art ---------- */
+.parties-game-info-panel-bg-container {
+  background-image: none !important;
+  background:
+    linear-gradient(135deg, rgba(var(--cc-accent-rgb), 0.14), transparent 55%),
+    repeating-linear-gradient(-45deg, rgba(255, 255, 255, 0.015) 0 2px, transparent 2px 9px),
+    rgba(8, 8, 11, 0.85) !important;
+}
+.parties-game-info-panel-bg-container.queue-delay {
+  background:
+    linear-gradient(135deg, rgba(var(--cc-accent-2-rgb), 0.22), transparent 60%),
+    rgba(8, 8, 11, 0.88) !important;
+}
+.parties-game-info-panel-bg-container video { display: none !important; }
+.parties-game-section { box-shadow: inset 2px 0 0 var(--cc-accent); }
+.parties-game-search-header-text {
+  font-family: var(--cc-display) !important;
+  letter-spacing: 0.18em !important;
+  color: var(--cc-muted) !important;
+}
+.parties-game-search-elapsed {
+  color: var(--cc-accent) !important;
+  font-family: var(--cc-display) !important;
+  text-shadow: 0 0 12px rgba(var(--cc-accent-rgb), 0.6);
+  animation: cc-queue-pulse 2s ease-in-out infinite;
+}
+.parties-game-search-elapsed.priority-max-alert { color: var(--cc-accent-2) !important; }
+@keyframes cc-queue-pulse { 50% { text-shadow: 0 0 22px rgba(var(--cc-accent-rgb), 0.95); } }
+.parties-game-search-divider { background: linear-gradient(90deg, var(--cc-accent), transparent) !important; }
+.parties-game-search-cancel { transition: background-color 0.2s; }
+.parties-game-search-cancel:hover { background-color: var(--cc-accent-2) !important; }
+
+/* ---------- "Open party" status card (top right): no green art ---------- */
+.parties-status-card-bg-container {
+  background-image: none !important;
+  background:
+    linear-gradient(135deg, rgba(var(--cc-accent-rgb), 0.12), transparent 55%),
+    repeating-linear-gradient(-45deg, rgba(255, 255, 255, 0.015) 0 2px, transparent 2px 9px),
+    rgba(8, 8, 11, 0.85) !important;
+}
+.parties-status-card-bg-container video { display: none !important; }
+.parties-status-card { box-shadow: inset 2px 0 0 var(--cc-accent); }
+.parties-status-card-header-text {
+  font-family: var(--cc-display) !important;
+  letter-spacing: 0.16em !important;
+  text-transform: uppercase;
+  color: var(--cc-text) !important;
+}
+.parties-status-card-header-icon { filter: hue-rotate(var(--cc-hue, 16deg)) saturate(var(--cc-sat, 1.4)); }
+.parties-status-card-divider { background: linear-gradient(90deg, var(--cc-accent), transparent) !important; }
+
+/* ---------- dialog / toast frames (every popup and notification) ---------- */
+.lol-uikit-dialog-frame {
+  border-image: none !important;
+  border-color: rgba(var(--cc-accent-rgb), 0.45) !important;
+  background:
+    linear-gradient(135deg, rgba(var(--cc-accent-rgb), 0.06), transparent 40%),
+    repeating-linear-gradient(-45deg, rgba(255, 255, 255, 0.012) 0 2px, transparent 2px 9px),
+    rgba(6, 6, 9, 0.96) !important;
+  box-shadow: 0 0 0 1px rgba(var(--cc-accent-rgb), 0.35), 0 18px 44px rgba(0, 0, 0, 0.6) !important;
+}
+/* Riot's gold carets / corner ornaments */
+.lol-uikit-dialog-frame-sub-border::before,
+.lol-uikit-dialog-frame-sub-border::after { display: none !important; }
+.lol-uikit-dialog-frame-sub-border { border-color: transparent !important; border-image: none !important; }
+
+/* ---------- motion for the bundled static borders (transform only: compositor-smooth) ---------- */
+:is(.cc-ring[data-style="image"] > img, .cc-gallery img) { transform-origin: 50% 50%; will-change: transform; }
+:is(.cc-ring[data-style="image"] > img, .cc-gallery img)[src*="Hex%20Frame"] { animation: cc-bm-hex 14s linear infinite; }
+:is(.cc-ring[data-style="image"] > img, .cc-gallery img)[src*="Circuit%20Ring"] { animation: cc-bm-circuit 20s linear infinite; }
+:is(.cc-ring[data-style="image"] > img, .cc-gallery img)[src*="Hazard%20Ring"] { animation: cc-bm-spin 9s linear infinite; }
+:is(.cc-ring[data-style="image"] > img, .cc-gallery img)[src*="Glitch%20Ring"] { animation: cc-bm-glitch 3.2s steps(1) infinite; }
+:is(.cc-ring[data-style="image"] > img, .cc-gallery img)[src*="Kiroshi%20Optic"] { animation: cc-bm-optic 6s cubic-bezier(0.45, 0, 0.55, 1) infinite; }
+@keyframes cc-bm-spin { to { transform: rotate(360deg); } }
+@keyframes cc-bm-hex {
+  0% { transform: rotate(0deg) scale(1); }
+  25% { transform: rotate(90deg) scale(1.03); }
+  50% { transform: rotate(180deg) scale(1); }
+  75% { transform: rotate(270deg) scale(1.03); }
+  100% { transform: rotate(360deg) scale(1); }
+}
+@keyframes cc-bm-circuit {
+  0% { transform: rotate(0deg) scale(1); }
+  50% { transform: rotate(-180deg) scale(1.04); }
+  100% { transform: rotate(-360deg) scale(1); }
+}
+@keyframes cc-bm-glitch {
+  0%, 100% { transform: rotate(0deg); }
+  10% { transform: rotate(8deg); }
+  70% { transform: rotate(40deg); }
+  72% { transform: rotate(40deg) translate(-3px, 1px); }
+  74% { transform: rotate(46deg) translate(3px, -1px); }
+  76% { transform: rotate(40deg); }
+  90% { transform: rotate(72deg); }
+}
+@keyframes cc-bm-optic {
+  0% { transform: rotate(0deg) scale(1); }
+  40% { transform: rotate(140deg) scale(1); }
+  46% { transform: rotate(150deg) scale(0.93); }
+  52% { transform: rotate(160deg) scale(1.02); }
+  100% { transform: rotate(360deg) scale(1); }
+}
