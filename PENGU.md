@@ -1,3 +1,5 @@
+![The home screen with the Cyberpunk theme](screenshots/preview.png)
+
 **Made by Korbax.** His GitHub account is no longer available, so this repo hosts the theme for him. All credit goes to Korbax.
 
 A complete Cyberpunk 2077-style makeover for the League client. Neon yellow and red on black glass, sharp cut corners, glitch effects and Breach Protocol animations, on every screen: home, lobby, champ select, profile, chat, Loot, Collection and more.

@@ -17,6 +17,8 @@ sci-fi sounds and loading screens that hide the client's default look while page
   </a>
 </p>
 
+![The home screen with the Cyberpunk theme](screenshots/preview.png)
+
 ## Features
 
 ### Look
