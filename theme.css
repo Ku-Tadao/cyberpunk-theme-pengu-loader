@@ -1376,7 +1376,8 @@ body.cc-fx .champion-select .timer-less-than-11-seconds { animation: cc-pulse 0.
 .parties-header-container {
   background: linear-gradient(90deg, rgba(8, 8, 11, 0.85), rgba(8, 8, 11, 0.4) 70%, transparent) !important;
   border-bottom: 1px solid var(--cc-line);
-  backdrop-filter: blur(var(--cc-blur));
+  /* no backdrop-filter: this header is an absolute overlay on top of the
+     custom game Invite button, so a blur here smears the button away */
 }
 .parties-header-container .lobby-back-button-container .lobby-header-vertical-line {
   background: var(--cc-accent) !important;
