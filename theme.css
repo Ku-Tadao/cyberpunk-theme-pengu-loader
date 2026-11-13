@@ -108,6 +108,8 @@ body.cc-has-wallpaper .parties-view .parties-background { height: 0 !important; 
   backdrop-filter: blur(var(--cc-blur));
   border-bottom: 1px solid var(--cc-line);
 }
+/* Riot's grey line under the whole bar, right on top of our yellow one */
+.navigation-root-component { border-bottom: none !important; }
 .main-navigation-menu-item .menu-item-icon { transition: background 0.2s, filter 0.2s; }
 .main-navigation-menu-item:hover .menu-item-icon,
 .main-navigation-menu-item[active] .menu-item-icon {
@@ -119,6 +121,8 @@ body.cc-has-wallpaper .parties-view .parties-background { height: 0 !important; 
   background: var(--cc-surface) !important;
   backdrop-filter: blur(var(--cc-blur));
   border-left: 1px solid var(--cc-line);
+  /* no line beside the wallet: it starts where the top bar ends */
+  border-image: linear-gradient(180deg, transparent 72px, var(--cc-line) 96px) 1;
 }
 
 /* sub navigation bars (profile tabs, General / TFT, ...) */
