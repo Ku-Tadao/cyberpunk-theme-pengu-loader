@@ -6,7 +6,7 @@
 // loads its sounds. Toggle: settings.customSounds (checked on every request).
 
 const BASE = new URL('../assets/sounds/', import.meta.url).href;
-const KEYS = ['silence', 'transition', 'create', 'link', 'returned', 'matchfound', 'queue', 'champselect', 'lockin', 'levelup', 'disconnect', 'dm-in', 'dm-out', 'lobby-in', 'lobby-out', 'invite', 'node-join', 'node-leave', 'voice-link', 'voice-signal', 'voice-match'];
+const KEYS = ['silence', 'transition', 'create', 'returned', 'matchfound', 'queue', 'champselect', 'lockin', 'levelup', 'disconnect', 'dm-in', 'dm-out', 'lobby-in', 'lobby-out', 'invite', 'node-join', 'node-leave', 'voice-link', 'voice-signal', 'voice-match'];
 
 // first match wins. Every event has its own sound; clicks, hovers and
 // notifications are silent.
