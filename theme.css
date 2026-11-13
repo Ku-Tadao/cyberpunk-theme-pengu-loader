@@ -1306,7 +1306,8 @@ body.cc-fx .champion-select .champion-splash-background::before {
 .champion-select .lock-in-button-video {
   display: none !important;
 }
-.champion-select .action-button {
+/* `body ... .action-button-container` outranks the recolor layer's `.picking .action-button` text colour */
+body .champion-select .action-button-container .action-button {
   background: linear-gradient(115deg, var(--cc-accent), rgba(var(--cc-accent-rgb), 0.7)) !important;
   color: #050507 !important;
   font: 700 18px var(--cc-display) !important;
@@ -1315,17 +1316,22 @@ body.cc-fx .champion-select .champion-splash-background::before {
   clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px);
   transition: filter 0.2s, background 0.2s;
 }
-.champion-select .action-button:hover {
+body .champion-select .action-button-container .action-button:hover {
   filter: brightness(1.15) drop-shadow(0 0 10px rgba(var(--cc-accent-rgb), 0.6));
   color: #050507 !important;
 }
-.champion-select .banning .action-button {
+body .champion-select .action-button-container .action-button:active { color: #050507 !important; filter: brightness(0.9); }
+body .champion-select .banning .action-button-container .action-button,
+body .champion-select .banning .action-button-container .action-button:hover,
+body .champion-select .banning .action-button-container .action-button:active {
   background: linear-gradient(115deg, var(--cc-accent-2), rgba(var(--cc-accent-2-rgb), 0.7)) !important;
   color: #fff !important;
 }
-.champion-select .action-button[disabled=true] {
+body .champion-select .action-button-container .action-button[disabled=true],
+body .champion-select .action-button-container .action-button[disabled=true]:hover {
   background: repeating-linear-gradient(-45deg, rgba(255, 255, 255, 0.06) 0 6px, rgba(0, 0, 0, 0.5) 6px 12px) !important;
   color: var(--cc-muted) !important;
+  filter: none;
 }
 
 /* champion grid */
@@ -1371,6 +1377,15 @@ body.cc-fx .champion-select .champion-splash-background::before {
   text-shadow: 0 0 10px rgba(var(--cc-accent-2-rgb), 0.8);
 }
 body.cc-fx .champion-select .timer-less-than-11-seconds { animation: cc-pulse 0.5s steps(2) infinite; }
+/* per-player pick timer: Riot's flat light digits vanish on the yellow card, so outline + extrude them */
+.champion-select .summoner-timer .timer {
+  font-family: var(--cc-display) !important;
+  color: #fff !important;
+  text-shadow:
+    -1px -1px 0 var(--cc-bg), 1px -1px 0 var(--cc-bg), -1px 1px 0 var(--cc-bg), 1px 1px 0 var(--cc-bg),
+    2px 2px 0 var(--cc-bg), 3px 3px 0 var(--cc-bg), 4px 4px 0 rgba(var(--cc-accent-3-rgb), 0.9),
+    0 0 12px rgba(0, 0, 0, 0.55);
+}
 
 /* ================= Lobby ================= */
 
@@ -1388,6 +1403,8 @@ body.cc-fx .champion-select .timer-less-than-11-seconds { animation: cc-pulse 0.
   box-shadow: var(--cc-glow);
 }
 .parties-header-container .lobby-header-wrapper { font-family: var(--cc-display); }
+/* the header overlay sits above the Invite row and dims it; lift the row over it */
+.custom-game-invite-button-container { z-index: 1; }
 
 /* no backdrop-filter / transform / filter here: the lobby chat inside the footer
    is position:fixed, and any of those would trap it inside the footer (off-screen) */
@@ -3427,25 +3444,25 @@ body.cc-fx .dialog-toast-celebration { animation: cc-toast-in 0.55s cubic-bezier
 .cc-bp, .cc-mf { contain: layout paint; }
 
 /* ================= Edge arrows (slide the friends panel / page away) ================= */
+/* z-index 1: just above the page, so dialogs, menus and tooltips stack above the arrows */
 .cc-edge-arrow {
   position: fixed;
   top: 50%;
-  z-index: 2147483000;
-  width: 18px;
-  height: 64px;
-  margin-top: -32px;
+  z-index: 1;
+  width: 14px;
+  height: 56px;
+  margin-top: -28px;
   display: grid;
   place-items: center;
   color: var(--cc-accent);
-  background: rgba(8, 8, 11, 0.85);
+  background: rgba(8, 8, 11, 0.9);
   box-shadow: inset 0 0 0 1px var(--cc-line);
   cursor: pointer;
-  transition: right 0.6s var(--cc-ease), left 0.6s var(--cc-ease), background 0.2s, color 0.2s, opacity 0.3s;
+  transition: right 0.6s var(--cc-ease), left 0.6s var(--cc-ease), background 0.2s, color 0.2s;
 }
 .cc-edge-arrow:hover { background: var(--cc-accent); color: #050507; }
-.cc-edge-arrow .cc-icon { transition: transform 0.35s var(--cc-spring); }
-.cc-edge-arrow:hover .cc-icon { transform: scale(1.2); }
-/* right: rides on the friends panel's edge, then on the window edge */
+.cc-edge-arrow .cc-icon, .cc-edge-arrow svg { width: 12px; height: 12px; }
+/* right: a tab on the friends panel's left edge; it rides along when the panel slides out */
 .cc-edge-arrow.right {
   right: 226px;
   clip-path: polygon(6px 0, 100% 0, 100% 100%, 6px 100%, 0 calc(100% - 6px), 0 6px);
@@ -3461,6 +3478,7 @@ body:is([data-cc-phase="None"], [data-cc-phase="Lobby"], [data-cc-phase="Matchma
   clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%);
 }
 .cc-edge-arrow.left.shown { display: grid; }
+.cc-edge-arrow.covered { display: none !important; }
 body:is([data-cc-phase="ChampSelect"], [data-cc-phase="GameStart"], [data-cc-phase="InProgress"]) .cc-edge-arrow.left { display: none !important; }
 
 /* ================= Private message received: chat icon pulse ================= */
@@ -4363,3 +4381,645 @@ body.cc-fx .cc-detail { animation: cc-dialog-in 0.42s var(--cc-out) both; }
 }
 .cc-bp.out .cc-bp-frame { animation: cc-bp2-frame-off 0.3s var(--cc-in) forwards; }
 @keyframes cc-bp2-frame-off { from { opacity: 0.08; } to { opacity: 0; scale: 1 0.02; } }
+
+/* ================= Service status button (top bar "!") ================= */
+/* Riot's round glossy PNG; swap it for a cut-corner chip that matches the bar */
+.navigation-status-ticker .ticker-button,
+.navigation-status-ticker .ticker-button:hover,
+.navigation-status-ticker .ticker-button:active,
+.navigation-status-ticker.ticker-flyout-visible .ticker-button {
+  --tk: var(--cc-accent-3); --tk-rgb: var(--cc-accent-3-rgb);
+  position: relative;
+  width: 26px; height: 26px;
+  margin: 0 12px 0 8px;
+  background: rgba(var(--tk-rgb), 0.12) !important;
+  box-shadow: inset 0 0 0 1px var(--tk);
+  clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
+  transition: background 0.15s, box-shadow 0.15s;
+}
+.navigation-status-ticker.status-degraded .ticker-button { --tk: var(--cc-accent); --tk-rgb: var(--cc-accent-rgb); }
+.navigation-status-ticker.status-offline .ticker-button { --tk: var(--cc-alert); --tk-rgb: var(--cc-alert-rgb); }
+.navigation-status-ticker .ticker-button::before {
+  content: "!";
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  font: 700 15px var(--cc-display);
+  color: var(--tk);
+  text-shadow: 0 0 8px rgba(var(--tk-rgb), 0.8);
+  pointer-events: none;
+}
+.navigation-status-ticker .ticker-button:hover,
+.navigation-status-ticker.ticker-flyout-visible .ticker-button { background: rgba(var(--tk-rgb), 0.28) !important; }
+.navigation-status-ticker .ticker-toggle { position: relative; width: 26px; height: 26px; }
+
+/* ================= Arrow footer (Start Game / Confirm + the X beside it) ================= */
+/* Riot builds these from PNG slices; swap them for a solid chevron like Lock In and a cut-corner X chip */
+body .arrow-footer[version] .confirm-button-container .border-bg { display: none; }
+body .arrow-footer[version] .confirm-button-container button.confirm > div,
+body .arrow-footer[version] .confirm-button-container button.confirm:is(:hover, :active, .disabled, .completed) > div { background-image: none !important; }
+body .arrow-footer[version] .confirm-button-container button.confirm {
+  background: linear-gradient(115deg, var(--cc-accent), rgba(var(--cc-accent-rgb), 0.72)) !important;
+  color: #050507 !important;
+  font: 700 15px var(--cc-display) !important;
+  letter-spacing: 0.22em !important;
+  clip-path: polygon(8px 0, calc(100% - 14px) 0, 100% 50%, calc(100% - 14px) 100%, 0 100%, 0 8px);
+  padding-right: 10px;
+  transition: filter 0.15s;
+}
+body .arrow-footer[version]:not(.hide-close-button) .confirm-button-container button.confirm { margin-left: 40px; }
+body .arrow-footer[version] .confirm-button-container button.confirm:hover { color: #050507 !important; filter: brightness(1.15) drop-shadow(0 0 10px rgba(var(--cc-accent-rgb), 0.6)); }
+body .arrow-footer[version] .confirm-button-container button.confirm:active { color: #050507 !important; filter: brightness(0.85); }
+body .arrow-footer[version] .confirm-button-container button.confirm.completed { background: linear-gradient(115deg, var(--cc-accent-3), rgba(var(--cc-accent-3-rgb), 0.7)) !important; color: #050507 !important; }
+body .arrow-footer[version] .confirm-button-container button.confirm:is(.disabled, :disabled, [disabled=true]),
+body .arrow-footer[version] .confirm-button-container button.confirm:is(.disabled, :disabled, [disabled=true]):hover {
+  background: repeating-linear-gradient(-45deg, rgba(255, 255, 255, 0.06) 0 6px, rgba(0, 0, 0, 0.6) 6px 12px), rgba(var(--cc-muted-rgb), 0.12) !important;
+  color: var(--cc-muted) !important;
+  filter: none;
+}
+
+/* the X / back chip */
+body .arrow-footer[version] .confirm-button-container button.close,
+body .arrow-footer[version] .confirm-button-container button.close:is(:hover, :active, .disabled, .completed) {
+  --fr: var(--cc-line);
+  background:
+    linear-gradient(135deg, transparent calc(50% - 1px), var(--fr) 0 calc(50% + 0.5px), transparent 0) top left / 8px 8px no-repeat,
+    linear-gradient(135deg, transparent calc(50% - 1px), var(--fr) 0 calc(50% + 0.5px), transparent 0) bottom right / 8px 8px no-repeat,
+    rgba(8, 8, 11, 0.88) !important;
+  box-shadow: inset 0 0 0 1px var(--fr);
+  clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+  transition: background-color 0.15s;
+}
+body .arrow-footer[version] .confirm-button-container button.close .close-icon,
+body .arrow-footer[version] .confirm-button-container button.close:is(:hover, :active, .disabled, .completed) .close-icon { position: relative; background-image: none !important; }
+/* two bars make the X */
+body .arrow-footer[version] .confirm-button-container button.close .close-icon::before,
+body .arrow-footer[version] .confirm-button-container button.close .close-icon::after {
+  content: ""; position: absolute; left: 50%; top: 50%;
+  width: 16px; height: 2px; margin: -1px 0 0 -8px;
+  background: var(--cc-text);
+  transform: rotate(45deg);
+  transition: background 0.15s;
+}
+body .arrow-footer[version] .confirm-button-container button.close .close-icon::after { transform: rotate(-45deg); }
+/* back variant: a single chevron */
+body .arrow-footer[version] .confirm-button-container button.close[type=back] .close-icon::before,
+body .arrow-footer[version] .confirm-button-container button.close[type=back] .close-icon::after { width: 9px; margin-left: -6px; transform-origin: 0 50%; }
+body .arrow-footer[version] .confirm-button-container button.close[type=back] .close-icon::before { transform: rotate(-45deg); }
+body .arrow-footer[version] .confirm-button-container button.close[type=back] .close-icon::after { transform: rotate(45deg); }
+body .arrow-footer[version] .confirm-button-container button.close:hover { --fr: var(--cc-accent-2); background-color: var(--cc-accent-2) !important; box-shadow: inset 0 0 0 1px var(--fr), 0 0 14px rgba(var(--cc-accent-2-rgb), 0.6); }
+body .arrow-footer[version] .confirm-button-container button.close[type=back]:hover { --fr: var(--cc-accent); background-color: var(--cc-accent) !important; box-shadow: inset 0 0 0 1px var(--fr), 0 0 14px rgba(var(--cc-accent-rgb), 0.6); }
+body .arrow-footer[version] .confirm-button-container button.close:hover .close-icon::before,
+body .arrow-footer[version] .confirm-button-container button.close:hover .close-icon::after { background: #050507; }
+body .arrow-footer[version] .confirm-button-container button.close:active { filter: brightness(0.85); }
+body .arrow-footer[version] .confirm-button-container button.close.disabled .close-icon::before,
+body .arrow-footer[version] .confirm-button-container button.close.disabled .close-icon::after { background: var(--cc-muted); }
+body .arrow-footer[version] .confirm-button-container button.close.completed .close-icon::before { width: 6px; margin-left: -6px; transform: rotate(45deg); transform-origin: 0 50%; background: var(--cc-accent-3); }
+body .arrow-footer[version] .confirm-button-container button.close.completed .close-icon::after { width: 12px; margin-left: -2px; transform: rotate(-50deg); transform-origin: 0 50%; background: var(--cc-accent-3); }
+
+/* ================= Custom game lobby ================= */
+/* Team 1 reads cyan, Team 2 magenta. Slots are cut-corner cards painted with
+   backgrounds only: clip-path or a stacking context on the row would cut off
+   or bury the position dropdown that opens out of it. */
+.custom-header-container .lobby-header-game-type-detail {
+  font: 600 11px/16px var(--cc-display) !important;
+  letter-spacing: 0.18em !important;
+  text-transform: uppercase;
+}
+.custom-header-container .lobby-header-custom-map-name { color: var(--cc-accent) !important; }
+/* the XP / mastery / eternals icons sat half under the header line; park them in the header row */
+.parties-lower-section .parties-point-eligibility-custom {
+  top: -48px; left: auto; right: 356px; z-index: 2;
+  padding-right: 14px;
+  border-right: 1px solid var(--cc-line-soft);
+}
+
+.custom-game-team { --tc: var(--cc-accent-3-rgb); }
+.custom-game-team.custom-game-team-two { --tc: var(--cc-accent-2-rgb); }
+.custom-game-team .team-header {
+  display: flex; align-items: center; gap: 12px;
+  margin: 0 0 3px 0 !important;
+  padding-left: 10px;
+  border-left: 3px solid rgb(var(--tc));
+  background: linear-gradient(90deg, rgba(var(--tc), 0.16), transparent 45%);
+  color: rgb(var(--tc)) !important;
+  font-size: 13px !important;
+  letter-spacing: 0.24em !important;
+  text-shadow: 0 0 10px rgba(var(--tc), 0.55);
+}
+.custom-game-team .team-header::after {
+  content: ""; flex: 1; height: 1px;
+  background: linear-gradient(90deg, rgba(var(--tc), 0.55), transparent);
+}
+
+.custom-game-team .custom-game-team-members { counter-reset: cc-slot; }
+.custom-game-team .custom-game-team-member {
+  --bar: rgb(var(--tc));
+  --fill: rgba(12, 14, 18, 0.72);
+  counter-increment: cc-slot;
+  box-sizing: border-box;
+  border: 0 !important;
+  border-bottom: 4px solid transparent !important;
+  background:
+    linear-gradient(var(--bar), var(--bar)) left / 3px 100% no-repeat,
+    linear-gradient(315deg, transparent 8px, rgba(var(--tc), 0.5) 8px, rgba(var(--tc), 0.5) 9px, transparent 9px),
+    linear-gradient(90deg, rgba(var(--tc), 0.5), transparent 70%) top / 100% 1px no-repeat,
+    linear-gradient(90deg, rgba(var(--tc), 0.14), transparent 40%),
+    linear-gradient(315deg, transparent 8px, var(--fill) 8px) !important;
+  background-clip: padding-box !important;
+  transition: filter 0.15s;
+}
+/* slot number */
+.custom-game-team .custom-game-team-member::before {
+  content: counter(cc-slot, decimal-leading-zero);
+  position: absolute; left: 12px; top: 0; bottom: 0;
+  display: flex; align-items: center;
+  font: 700 11px var(--cc-display);
+  letter-spacing: 0.1em;
+  color: rgba(var(--tc), 0.75);
+  pointer-events: none;
+}
+.custom-game-team .custom-game-team-member .custom-member-info-left { margin-left: 30px; }
+/* open slots: dimmer, hollow bar */
+.custom-game-team .custom-game-team-member:has(.custom-team-member-placeholder) {
+  --bar: rgba(var(--tc), 0.25);
+  --fill: rgba(12, 14, 18, 0.55);
+  background:
+    linear-gradient(var(--bar), var(--bar)) left / 3px 100% no-repeat,
+    linear-gradient(315deg, transparent 8px, rgba(255, 255, 255, 0.14) 8px, rgba(255, 255, 255, 0.14) 9px, transparent 9px),
+    linear-gradient(rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.07)) top / 100% 1px no-repeat,
+    linear-gradient(315deg, transparent 8px, var(--fill) 8px) !important;
+  background-clip: padding-box !important;
+}
+.custom-game-team .custom-game-team-member:has(.custom-team-member-placeholder)::before { color: rgba(var(--cc-muted-rgb), 0.45); }
+.custom-game-team .custom-team-member-placeholder {
+  font: 600 11px var(--cc-display) !important;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(var(--cc-muted-rgb), 0.6) !important;
+}
+/* you */
+.custom-game-team .custom-game-team-member.is-current-custom-player { --bar: var(--cc-accent); }
+
+.custom-game-team .custom-info-left-first { width: auto; min-width: 26px; }
+.custom-game-team .custom-summoner-level {
+  font: 600 11px var(--cc-display) !important;
+  letter-spacing: 0.06em;
+  color: var(--cc-muted) !important;
+}
+.custom-game-team .custom-member-name,
+.custom-game-team .custom-member-name .player-name-component {
+  font: 600 15px var(--cc-body) !important;
+  color: var(--cc-text) !important;
+}
+.custom-game-team .is-current-custom-player .custom-member-name,
+.custom-game-team .is-current-custom-player .custom-member-name .player-name-component { color: var(--cc-accent) !important; }
+.custom-game-team .custom-member-info-stats { align-items: flex-end; justify-content: center; padding-right: 14px; }
+.custom-game-team .custom-member-info-ranked-tier {
+  font: 700 12px/16px var(--cc-display) !important;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--cc-text) !important;
+}
+.custom-game-team .custom-member-info-ranked-wins {
+  font: 500 11px/14px var(--cc-body) !important;
+  letter-spacing: 0.04em;
+  color: var(--cc-muted) !important;
+}
+.custom-game-team .custom-placeholder-buttons { padding-right: 10px; }
+
+/* Invited + Spectators: matching framed panels with a header strip */
+body .parties-lower-section .parties-invite-info-panel.ember-view,
+body .parties-lower-section .custom-game-spectator-info {
+  background:
+    linear-gradient(90deg, var(--cc-accent) 0 28px, var(--cc-line) 28px) top / 100% 1px no-repeat,
+    linear-gradient(315deg, transparent 10px, var(--cc-line) 10px, var(--cc-line) 11px, transparent 11px),
+    linear-gradient(315deg, transparent 10px, rgba(12, 14, 18, 0.6) 10px) !important;
+}
+.parties-lower-section .custom-invite-header,
+.parties-lower-section .spectator-info-header-wrapper {
+  box-sizing: border-box;
+  align-items: center;
+  border-bottom: 1px solid var(--cc-line-soft) !important;
+  background: linear-gradient(90deg, rgba(var(--cc-accent-rgb), 0.1), transparent 70%);
+}
+.parties-lower-section .custom-invite-header-text,
+.parties-lower-section .spectator-info-header {
+  box-sizing: border-box;
+  padding-left: 12px;
+  justify-content: flex-start;
+  font: 700 12px/32px var(--cc-display) !important;
+  letter-spacing: 0.2em !important;
+  text-transform: uppercase;
+  color: var(--cc-text) !important;
+}
+.parties-lower-section .spectator-info-header { flex: 1; min-width: 0; width: auto; }
+.parties-lower-section .parties-invite-info-panel-list,
+.parties-lower-section .spectator-info-spectators-list { box-sizing: border-box; padding: 6px 12px; }
+.parties-lower-section .spectator-info-empty {
+  font: 600 11px var(--cc-display) !important;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(var(--cc-muted-rgb), 0.6) !important;
+}
+.parties-lower-section .parties-invite-info-panel-player .invite-info-name,
+.parties-lower-section .parties-invite-info-panel-player .player-name-component {
+  font-family: var(--cc-body) !important;
+}
+.parties-lower-section .parties-invite-info-panel-player.parties-accepted-invite .player-name-component { color: var(--cc-text) !important; }
+/* Spectate shrinks to a chip at the right of the Spectators strip */
+.parties-lower-section .custom-game-spectate-button-wrapper { flex: none; width: auto; height: auto; margin: 0 8px 0 auto; display: flex; align-items: center; }
+.parties-lower-section .custom-game-spectate-button { display: block; width: 84px; height: 22px; min-width: 0; }
+/* row dropdowns: drop Riot's grey plate behind the box */
+.custom-game-team .custom-game-team-member lol-uikit-framed-dropdown { background: transparent !important; }
+.custom-game-team .custom-bot-champion-name { font-family: var(--cc-body); }
+
+/* ================= Party lobby (16.22 markup) ================= */
+/* Riot rebuilt Find Match, the X and the invite slots as image buttons ("generic-button": one
+   PNG per state). The images go; the same shapes as the custom lobby footer take their place. */
+.v2-footer-component .find-match-button-container .generic-button-primary-img-container,
+.v2-footer-component .close-button .generic-button-primary-img-container,
+.v2-banner-placeholder .invite-button .generic-button-primary-img-container { visibility: hidden; }
+body .v2-footer-component .find-match-button-container .generic-button-root {
+  background: linear-gradient(115deg, var(--cc-accent), rgba(var(--cc-accent-rgb), 0.72));
+  clip-path: polygon(8px 0, calc(100% - 14px) 0, 100% 50%, calc(100% - 14px) 100%, 0 100%, 0 8px);
+  transition: filter 0.15s;
+}
+body .v2-footer-component .find-match-button-container .generic-button-text {
+  color: #050507 !important;
+  font: 700 16px var(--cc-display) !important;
+  letter-spacing: 0.24em !important;
+  text-transform: uppercase;
+  text-shadow: none !important;
+  padding-right: 8px;
+}
+body .v2-footer-component .find-match-button-container .generic-button-root:hover { filter: brightness(1.15) drop-shadow(0 0 10px rgba(var(--cc-accent-rgb), 0.6)); }
+body .v2-footer-component .find-match-button-container .generic-button-root:active { filter: brightness(0.85); }
+body .v2-footer-component .find-match-button-container .generic-button-root:has(.disabled.active) {
+  background: repeating-linear-gradient(-45deg, rgba(255, 255, 255, 0.06) 0 6px, rgba(0, 0, 0, 0.6) 6px 12px), rgba(var(--cc-muted-rgb), 0.12);
+  filter: none;
+}
+body .v2-footer-component .find-match-button-container .generic-button-root:has(.disabled.active) .generic-button-text { color: var(--cc-muted) !important; }
+/* the X chip */
+body .v2-footer-component .close-button .generic-button-root {
+  position: relative;
+  --fr: var(--cc-line);
+  background:
+    linear-gradient(135deg, transparent calc(50% - 1px), var(--fr) 0 calc(50% + 0.5px), transparent 0) top left / 8px 8px no-repeat,
+    linear-gradient(135deg, transparent calc(50% - 1px), var(--fr) 0 calc(50% + 0.5px), transparent 0) bottom right / 8px 8px no-repeat,
+    rgba(8, 8, 11, 0.88);
+  box-shadow: inset 0 0 0 1px var(--fr);
+  clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+  transition: background-color 0.15s;
+}
+body .v2-footer-component .close-button .generic-button-root::before,
+body .v2-footer-component .close-button .generic-button-root::after,
+body .v2-banner-placeholder .invite-button .generic-button-root::before,
+body .v2-banner-placeholder .invite-button .generic-button-root::after {
+  content: ""; position: absolute; left: 50%; top: 50%;
+  width: 16px; height: 2px; margin: -1px 0 0 -8px;
+  background: var(--cc-text);
+  transform: rotate(45deg);
+  transition: background 0.15s;
+  pointer-events: none;
+}
+body .v2-footer-component .close-button .generic-button-root::after { transform: rotate(-45deg); }
+body .v2-footer-component .close-button .generic-button-root:hover { --fr: var(--cc-accent-2); background-color: var(--cc-accent-2); box-shadow: inset 0 0 0 1px var(--fr), 0 0 14px rgba(var(--cc-accent-2-rgb), 0.6); }
+body .v2-footer-component .close-button .generic-button-root:hover::before,
+body .v2-footer-component .close-button .generic-button-root:hover::after { background: #050507; }
+body .v2-footer-component .close-button .generic-button-root:active { filter: brightness(0.85); }
+
+/* invite slots: a cut-corner socket with a plus, in place of the round gold ring */
+body .v2-banner-placeholder .invite-button { filter: none !important; }
+body .v2-banner-placeholder .invite-button .generic-button-root {
+  position: relative;
+  --fr: rgba(var(--cc-accent-rgb), 0.45);
+  width: 64px; height: 64px; margin: 8px;
+  background:
+    linear-gradient(135deg, transparent calc(50% - 1px), var(--fr) 0 calc(50% + 0.5px), transparent 0) top left / 12px 12px no-repeat,
+    linear-gradient(135deg, transparent calc(50% - 1px), var(--fr) 0 calc(50% + 0.5px), transparent 0) bottom right / 12px 12px no-repeat,
+    rgba(8, 8, 11, 0.6);
+  box-shadow: inset 0 0 0 1px var(--fr);
+  clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px);
+  transition: background-color 0.15s;
+}
+body .v2-banner-placeholder .invite-button .generic-button-root::before,
+body .v2-banner-placeholder .invite-button .generic-button-root::after { background: var(--cc-accent); transform: none; }
+body .v2-banner-placeholder .invite-button .generic-button-root::after { transform: rotate(90deg); }
+body .v2-banner-placeholder .invite-button .generic-button-root:hover { --fr: var(--cc-accent); background-color: var(--cc-accent); }
+body .v2-banner-placeholder .invite-button .generic-button-root:hover::before,
+body .v2-banner-placeholder .invite-button .generic-button-root:hover::after { background: #050507; }
+body .v2-banner-placeholder .invite-button .generic-button-root:active { filter: brightness(0.85); }
+
+/* Suggested / Invited: the same framed panel as the custom lobby */
+body .v2-parties-invite-info-panel {
+  background:
+    linear-gradient(90deg, var(--cc-accent) 0 28px, var(--cc-line) 28px) top / 100% 1px no-repeat,
+    linear-gradient(315deg, transparent 10px, var(--cc-line) 10px, var(--cc-line) 11px, transparent 11px),
+    linear-gradient(315deg, transparent 10px, rgba(12, 14, 18, 0.6) 10px) !important;
+}
+body .v2-parties-invite-info-panel .split-panel-header { border-bottom: 1px solid var(--cc-line-soft) !important; }
+body .v2-parties-invite-info-panel .split-panel-header-title {
+  font-family: var(--cc-display) !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.16em !important;
+  text-transform: uppercase;
+  color: var(--cc-muted) !important;
+}
+body .v2-parties-invite-info-panel .split-panel-header-title.active { color: var(--cc-text) !important; }
+body .v2-parties-invite-info-panel .split-panel-header-title:hover { color: var(--cc-accent) !important; }
+body .v2-parties-invite-info-panel .invite-info-name,
+body .v2-parties-invite-info-panel .invite-info-name .player-name-component { font-family: var(--cc-body) !important; }
+
+/* Autofill pill as a chip */
+body .v2-footer-notifications .autofill-warning {
+  border-radius: 0 !important;
+  border: 0 !important;
+  background: rgba(8, 8, 11, 0.85) !important;
+  box-shadow: inset 0 0 0 1px var(--cc-line);
+  clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
+  font: 600 11px var(--cc-display) !important;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+/* ================= Game mode selector: modes as tiles, queues as rows ================= */
+.parties-game-type-select-wrapper { counter-reset: cc-mode; }
+body .game-type-card { counter-increment: cc-mode; }
+body .game-type-card:hover { background: none; }
+body .game-type-card::after { display: none; }
+body .game-type-card .parties-game-type-upper-half {
+  --fr: var(--cc-line-soft);
+  --bar: rgba(var(--cc-muted-rgb), 0.5);
+  --tint: transparent;
+  position: relative;
+  z-index: 0;
+}
+/* the tile itself: top line with a short stub, cut bottom-right corner */
+body .game-type-card .parties-game-type-upper-half::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 14px 0;
+  z-index: -1;
+  background:
+    linear-gradient(90deg, var(--bar) 0 34px, var(--fr) 34px) top / 100% 1px no-repeat,
+    linear-gradient(315deg, transparent 12px, var(--fr) 12px, var(--fr) 13px, transparent 13px),
+    linear-gradient(180deg, var(--tint), transparent 70%),
+    linear-gradient(315deg, transparent 12px, rgba(12, 14, 18, 0.55) 12px);
+  transition: background 0.2s;
+  pointer-events: none;
+}
+body .game-type-card .parties-game-type-upper-half::after {
+  content: counter(cc-mode, decimal-leading-zero);
+  position: absolute; left: 10px; top: 9px;
+  font: 700 10px var(--cc-display);
+  letter-spacing: 0.12em;
+  color: rgba(var(--cc-muted-rgb), 0.7);
+  pointer-events: none;
+}
+body .game-type-card:hover .parties-game-type-upper-half { --fr: rgba(var(--cc-accent-rgb), 0.45); --bar: var(--cc-accent); --tint: rgba(var(--cc-accent-rgb), 0.06); }
+body .game-type-card.selected .parties-game-type-upper-half { --fr: rgba(var(--cc-accent-rgb), 0.6); --bar: var(--cc-accent); --tint: rgba(var(--cc-accent-rgb), 0.1); }
+body .game-type-card.selected .parties-game-type-upper-half::after { color: var(--cc-accent); }
+body .game-type-card .icon-frame { filter: hue-rotate(var(--cc-hue, 16deg)) saturate(var(--cc-sat, 1.4)); }
+body .game-type-card .parties-game-type-card-selected-glow { display: none; }
+body .game-type-card .parties-game-type-card-name {
+  font-size: 19px !important;
+  line-height: 26px !important;
+  letter-spacing: 0.2em !important;
+  color: var(--cc-text) !important;
+}
+body .game-type-card:hover .parties-game-type-upper-half .parties-game-type-icon .parties-game-type-card-name,
+body .game-type-card.selected .parties-game-type-upper-half .parties-game-type-icon .parties-game-type-card-name {
+  color: var(--cc-accent) !important;
+  text-shadow: 0 0 12px rgba(var(--cc-accent-rgb), 0.45);
+}
+body .game-type-card .parties-game-type-upper-half .parties-game-type-icon .parties-game-type-card-break {
+  font: 700 11px var(--cc-display) !important;
+  letter-spacing: 0.14em;
+  color: var(--cc-accent-3) !important;
+}
+/* lower half: description, then the queues as rows */
+body .game-type-card .parties-game-type-card-intro p {
+  font: 400 13px/19px var(--cc-body) !important;
+  color: var(--cc-muted) !important;
+}
+body .game-type-card .parties-game-type-card-category-div {
+  --bar: rgba(var(--cc-muted-rgb), 0.35);
+  box-sizing: border-box;
+  margin: 0 6px 4px 0 !important;
+  padding: 7px 8px 7px 10px;
+  height: auto !important;
+  align-items: center;
+  background:
+    linear-gradient(var(--bar), var(--bar)) left / 2px 100% no-repeat,
+    linear-gradient(315deg, transparent 6px, rgba(12, 14, 18, 0.6) 6px);
+  transition: background 0.15s;
+}
+body .game-type-card .parties-game-type-card-category-div:hover { --bar: var(--cc-accent); }
+body .game-type-card .parties-game-type-card-category-div.selected {
+  --bar: var(--cc-accent);
+  background:
+    linear-gradient(var(--bar), var(--bar)) left / 2px 100% no-repeat,
+    linear-gradient(90deg, rgba(var(--cc-accent-rgb), 0.16), transparent 80%),
+    linear-gradient(315deg, transparent 6px, rgba(12, 14, 18, 0.6) 6px);
+}
+/* radio: a small diamond, filled when picked */
+body .game-type-card .parties-game-type-card-category-radio-option {
+  position: relative !important;
+  top: auto !important; margin: 0 !important;
+  flex: none;
+  width: 14px !important; height: 14px !important;
+  background: none !important;
+  filter: none !important;
+}
+body .game-type-card .parties-game-type-card-category-radio-option::before {
+  content: ""; position: absolute; left: 3px; top: 3px;
+  width: 6px; height: 6px;
+  border: 1px solid rgba(var(--cc-muted-rgb), 0.8);
+  transform: rotate(45deg);
+}
+body .game-type-card .parties-game-type-card-category-div:hover .parties-game-type-card-category-radio-option::before { border-color: var(--cc-accent); }
+body .game-type-card .parties-game-type-card-category-div.selected .parties-game-type-card-category-radio-option::before {
+  border-color: var(--cc-accent); background: var(--cc-accent);
+  box-shadow: 0 0 8px rgba(var(--cc-accent-rgb), 0.8);
+}
+body .game-type-card .parties-game-type-card-category-btn { position: static !important; margin-left: 8px !important; }
+body .game-type-card .parties-game-type-card-category-btn .queue-id {
+  font: 700 12px/16px var(--cc-display) !important;
+  letter-spacing: 0.12em !important;
+  color: var(--cc-text) !important;
+}
+body .game-type-card .parties-game-type-card-category-div.selected .queue-id,
+body .game-type-card .parties-game-type-card-category-div:hover .queue-id { color: var(--cc-accent) !important; }
+body .game-type-card .parties-game-type-card-category-btn span {
+  font: 400 11px/14px var(--cc-body) !important;
+  color: var(--cc-muted) !important;
+}
+
+/* ================= Champ select v2: grid in a framed panel, no gold dial ================= */
+/* --ca is the phase colour: yellow while picking, red while banning */
+.champion-select { --ca: var(--cc-accent); --ca-rgb: var(--cc-accent-rgb); }
+.champion-select.is-banning-now,
+.champion-select .champion-grid-banning { --ca: var(--cc-accent-2); --ca-rgb: var(--cc-accent-2-rgb); }
+body .champion-select .champion-splash-background.is-showing-grid { background-image: none !important; }
+body .champion-select .champion-grid {
+  background:
+    linear-gradient(90deg, var(--ca) 0 44px, var(--cc-line-soft) 44px) top / 100% 1px no-repeat,
+    linear-gradient(315deg, transparent 14px, var(--cc-line-soft) 14px, var(--cc-line-soft) 15px, transparent 15px),
+    linear-gradient(180deg, rgba(var(--ca-rgb), 0.07), transparent 120px),
+    linear-gradient(315deg, transparent 14px, rgba(8, 8, 11, 0.62) 14px) !important;
+}
+body .champion-select .champion-grid .champion-grid-header { border-bottom: 1px solid var(--cc-line-soft) !important; }
+body .champion-select .champion-grid .filter-icons { filter: hue-rotate(var(--cc-hue, 16deg)) saturate(var(--cc-sat, 1.4)); }
+/* tiles: quiet until hovered; the ban phase no longer lights every tile red */
+body .champion-select .grid-champion > .grid-champion-hitbox > .champion-grid-champion-thumbnail {
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  box-shadow: none !important;
+}
+body .champion-select .champion-grid-banning .grid-champion > .grid-champion-hitbox > .champion-grid-champion-thumbnail { border-color: rgba(var(--cc-accent-2-rgb), 0.35) !important; }
+body .champion-select .grid-champion > .grid-champion-hitbox:hover > .champion-grid-champion-thumbnail,
+body .champion-select .grid-champion.grid-champion-selected > .grid-champion-hitbox > .champion-grid-champion-thumbnail {
+  border-color: var(--ca) !important;
+  box-shadow: 0 0 0 1px var(--ca), 0 0 12px rgba(var(--ca-rgb), 0.6) !important;
+}
+body .champion-select .grid-champion .champion-name {
+  font-family: var(--cc-display) !important;
+  font-size: 10px !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase;
+  color: var(--cc-muted) !important;
+}
+body .champion-select .grid-champion > .grid-champion-hitbox:hover .champion-name,
+body .champion-select .grid-champion.grid-champion-selected .champion-name { color: var(--ca) !important; }
+/* ban slots (top left / right): cut-corner sockets with a slash */
+body .champion-select .team-bans .team-bans-item {
+  background:
+    linear-gradient(135deg, transparent calc(50% - 0.5px), rgba(var(--cc-muted-rgb), 0.45) 0 calc(50% + 0.5px), transparent 0),
+    rgba(8, 8, 11, 0.75) !important;
+  box-shadow: inset 0 0 0 1px var(--cc-line-soft);
+  clip-path: polygon(5px 0, 100% 0, 100% calc(100% - 5px), calc(100% - 5px) 100%, 0 100%, 0 5px);
+}
+/* Riot's gold dial: gone behind the grid, recoloured wherever it still spins */
+body .champion-select .pick-phase.champion-grid-visible .pick-ban-ring .expanded-ring-container { opacity: 0 !important; }
+body .champion-select .pick-ban-ring svg,
+body .champion-select .champion-splash-background > div > svg { filter: hue-rotate(var(--cc-hue, 16deg)) saturate(var(--cc-sat, 1.4)); }
+/* locked-in + ban reveal: names as display-font plates, labels as small caps */
+body .champion-select .champion-skin-name .skin-name-text {
+  display: inline-block;
+  padding: 3px 16px 3px 12px;
+  font-family: var(--cc-display) !important;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.18em !important;
+  text-transform: uppercase;
+  color: var(--cc-text) !important;
+  background:
+    linear-gradient(var(--ca), var(--ca)) left / 3px 100% no-repeat,
+    linear-gradient(315deg, transparent 7px, rgba(8, 8, 11, 0.7) 7px);
+  text-shadow: none !important;
+}
+body .champion-select .champion-name-wrapper .champion-skin-name .skin-name-text { --ca: var(--cc-accent-2); }
+body .champion-select .ban-showcase-team .bans-label {
+  font-family: var(--cc-display) !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.22em !important;
+  text-transform: uppercase;
+  color: var(--cc-accent-2) !important;
+}
+body .champion-select .ban-showcase-team.my-team .bans-label { color: var(--cc-accent-3) !important; }
+body .champion-select .ban-showcase-team .bans-label-glow { display: none !important; }
+body .champion-select .skin-selection-indicator-list { filter: hue-rotate(var(--cc-hue, 16deg)) saturate(var(--cc-sat, 1.4)); }
+
+/* ================= Rune editor (champ select and Collection) ================= */
+/* A flat dark panel behind the rune columns so they read against the artwork;
+   the construct stays visible on the right. */
+body .perks-panel .perks-body-content {
+  background: linear-gradient(90deg, rgba(8, 9, 12, 0.86) 0, rgba(8, 9, 12, 0.86) 58%, transparent 80%) !important;
+}
+body .perks-panel .perks-body-header {
+  border-bottom: 1px solid transparent !important;
+  border-image: linear-gradient(90deg, var(--cc-accent) 0 44px, var(--cc-line-soft) 44px 62%, transparent 78%) 1 !important;
+  padding-bottom: 10px;
+}
+body .perks-panel .page-editor-footer {
+  border-top: 1px solid transparent !important;
+  border-image: linear-gradient(90deg, var(--cc-line-soft) 0 62%, transparent 78%) 1 !important;
+}
+/* row dividers: quiet hairlines, no gold, no diamond ends */
+body .perks-panel .lol-perks-drawer .flourish-line { border-color: var(--cc-line-soft) !important; }
+body .perks-panel .lol-perks-drawer .flourish-line::before,
+body .perks-panel .lol-perks-drawer .flourish-line::after { display: none !important; }
+body .perks-panel .lol-perks-drawer .radial { background: none !important; }
+body .perks-panel .primary-perk-selector-keystone {
+  font: 700 10px var(--cc-display) !important;
+  letter-spacing: 0.22em !important;
+  text-transform: uppercase;
+}
+body .perks-panel .perks-grid-mode-label svg path { fill: var(--cc-muted) !important; }
+body .perks-panel .perks-grid-mode-label:hover svg path,
+body .perks-panel input:checked + .perks-grid-mode-label svg path { fill: var(--cc-accent) !important; }
+body .perks-panel .perks-settings-checkbox-label {
+  font-family: var(--cc-body) !important;
+  color: var(--cc-muted) !important;
+}
+
+/* ================= Friends list v2: flat rows, hairlines, cut-corner badges ================= */
+body .lol-social-actions-bar .actions-bar { box-shadow: inset 0 -1px 0 var(--cc-line-soft); }
+body .lol-social-actions-bar .friend-header {
+  font-size: 11px !important;
+  letter-spacing: 0.24em !important;
+  color: var(--cc-muted) !important;
+}
+/* friend requests: one flat row with an accent bar */
+body .lol-social-friend-requests .friend-requests {
+  background:
+    linear-gradient(var(--cc-accent), var(--cc-accent)) left / 3px 100% no-repeat,
+    linear-gradient(90deg, rgba(var(--cc-accent-rgb), 0.12), transparent 70%) !important;
+  box-shadow: inset 0 -1px 0 var(--cc-line-soft);
+}
+body .lol-social-friend-requests .friend-requests-header {
+  font: 700 12px/20px var(--cc-display) !important;
+  letter-spacing: 0.16em !important;
+  text-transform: uppercase;
+}
+body .lol-social-sidebar .social-count-badge {
+  border-radius: 0 !important;
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 5px), calc(100% - 5px) 100%, 0 100%);
+  font-family: var(--cc-display) !important;
+  font-weight: 700 !important;
+}
+/* folders: quiet rows split by hairlines */
+body .lol-social-roster-group .group-header {
+  background: none !important;
+  box-shadow: inset 0 -1px 0 var(--cc-line-soft);
+}
+body .lol-social-roster-group .group-header:hover {
+  background: linear-gradient(90deg, rgba(var(--cc-accent-rgb), 0.12), transparent 85%) !important;
+}
+body .lol-social-roster-group .group-name-text {
+  font-size: 11px !important;
+  letter-spacing: 0.16em !important;
+}
+/* friends: offline ones step back */
+body .lol-social-roster-member .member.offline .lol-social-avatar { opacity: 0.55; }
+body .lol-social-roster-member .member.offline .member-name { color: rgba(var(--cc-muted-rgb), 0.8) !important; }
+body .lol-social-roster-member .member-name { font-size: 13px !important; }
+/* bottom bar */
+body .lol-social-sidebar .alpha-version-panel { box-shadow: inset 0 1px 0 var(--cc-line-soft); }
+body .lol-social-sidebar .alpha-version-panel .mission-button,
+body .lol-social-sidebar .alpha-version-panel .bug-report-button { filter: hue-rotate(var(--cc-hue, 16deg)) saturate(var(--cc-sat, 1.4)); }
+body .lol-social-sidebar .alpha-version-panel .mission-button .count-badge { filter: hue-rotate(calc(-1 * var(--cc-hue, 16deg))); }
+
+/* Game mode tiles: Riot pins the tile at 185px (170px compact) while the title
+   needs more, so long names ran out of the frame. Size the tile from its card
+   and let the title wrap inside it. */
+body .game-type-card .parties-game-type-upper-half { width: calc(100% - 10px) !important; }
+body .game-type-card .parties-game-type-upper-half .parties-game-type-icon { width: 100% !important; min-width: 0 !important; }
+body .game-type-card .parties-game-type-card-name {
+  box-sizing: border-box;
+  max-width: 100%;
+  padding: 0 6px;
+  text-align: center;
+  overflow-wrap: break-word;
+}

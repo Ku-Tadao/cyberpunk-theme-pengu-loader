@@ -85,12 +85,28 @@ export function startHomeToggle(subscribe) {
     if ('homeHidden' in patch) { left.draw(); applyHome(); }
   });
 
-  // the arrows live in the client's viewport root (it takes clicks); the slide is
+  // the arrows live in the client's viewport root (it takes clicks, and dialogs stack above it); the slide is
   // re-applied as screens re-render, and the left arrow shows only on home screens
   setInterval(() => {
     if (asleep()) return;
     const root = document.querySelector('#rcp-fe-viewport-root') || document.body;
     for (const b of [right.btn, left.btn]) if (b.parentElement !== root) root.append(b);
+    // drop stray copies (seen left behind as direct children of <body>): a dead one keeps
+    // floating at the panel's old edge and swallows the clicks meant for the real arrow
+    for (const el of document.querySelectorAll('.cc-edge-arrow')) if (el !== right.btn && el !== left.btn) el.remove();
+    // no arrow while the friends panel is gone, a dialog is open over the arrow, or a
+    // full-screen page covers the panel
+    // ponytail: two probe points at mid-height (the arrow's spot, the panel's edge)
+    const side = document.querySelector('.lol-social-sidebar');
+    const hidden = settings.friendsHidden;
+    const y = innerHeight / 2;
+    const edge = hidden ? innerWidth : innerWidth - (side?.offsetWidth || 0);
+    const dialogAt = (x, btn) => !!document.elementsFromPoint(x, y).find((el) => !btn.contains(el))?.closest('#lol-uikit-layer-manager');
+    const shown = !!side?.getClientRects().length
+      && !dialogAt(edge - 7, right.btn)
+      && (hidden || side.contains(document.elementFromPoint(edge + 4, y)));
+    left.btn.classList.toggle('covered', dialogAt(7, left.btn));
+    right.btn.classList.toggle('covered', !shown);
     if (settings.friendsHidden) applyFriends();
     if (settings.homeHidden) applyHome();
     const onHome = HOMES.some((sel) => [...document.querySelectorAll(sel)].some((el) => el.getClientRects().length));

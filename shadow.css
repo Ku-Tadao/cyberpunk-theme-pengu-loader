@@ -394,3 +394,89 @@
   52% { transform: rotate(160deg) scale(1.02); }
   100% { transform: rotate(360deg) scale(1); }
 }
+
+/* ---------- uikit flat buttons: cut-corner chips, same family as Lock In ---------- */
+/* clip-path eats the inset frame on the diagonals, so the two corner layers redraw it */
+:host(:not([type=next]):not([type=purchase])) .lol-uikit-flat-button,
+:host .lol-uikit-flat-button-secondary-wrapper {
+  --fr: var(--cc-line);
+  --fill: rgba(255, 255, 255, 0.03);
+  background:
+    linear-gradient(135deg, transparent calc(50% - 1px), var(--fr) 0 calc(50% + 0.5px), transparent 0) top left / 8px 8px no-repeat,
+    linear-gradient(135deg, transparent calc(50% - 1px), var(--fr) 0 calc(50% + 0.5px), transparent 0) bottom right / 8px 8px no-repeat,
+    var(--fill) !important;
+  box-shadow: inset 0 0 0 1px var(--fr) !important;
+  clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+  transition: color 0.15s;
+}
+:host(:not([type=next]):not([type=purchase])) .lol-uikit-flat-button {
+  --fr: rgba(var(--cc-accent-rgb), 0.75);
+  --fill: rgba(var(--cc-accent-rgb), 0.08);
+  border: 0 !important; /* Riot's 2px clear border pushed the frame off the clipped corners */
+  color: var(--cc-accent) !important;
+  font-family: var(--cc-display) !important;
+  letter-spacing: 0.14em !important;
+}
+:host(:not([type=next]):not([type=purchase])) .lol-uikit-flat-button :is(.lol-uikit-flat-button-bg, .lol-uikit-flat-button-border-idle, .lol-uikit-flat-button-border-transition, .lol-uikit-flat-button-flare, .lol-uikit-flat-button-glow, .lol-uikit-flat-button-sheen-wrapper),
+:host .lol-uikit-flat-button-secondary-wrapper .button-frame-container {
+  display: none !important;
+}
+/* secondary variant: neutral frame, light text */
+:host(:not([type=next]):not([type=purchase])) .lol-uikit-flat-button.secondary { --fr: var(--cc-line); --fill: rgba(255, 255, 255, 0.03); }
+:host(:not([type=next]):not([type=purchase])) .lol-uikit-flat-button.secondary:not(.disabled) .lol-uikit-flat-button-content-wrapper,
+:host .lol-uikit-flat-button-secondary-wrapper .lol-uikit-flat-button-secondary-content {
+  background: none !important;
+  -webkit-background-clip: border-box !important;
+  -webkit-text-fill-color: currentColor !important;
+  color: var(--cc-text) !important;
+  font-family: var(--cc-display) !important;
+  letter-spacing: 0.1em !important;
+  text-transform: uppercase;
+}
+/* hover: solid yellow, dark text */
+:host(:not([type=next]):not([type=purchase])) .lol-uikit-flat-button.hover,
+:host .lol-uikit-flat-button-secondary-wrapper.over { --fr: var(--cc-accent); --fill: var(--cc-accent); color: #050507 !important; }
+:host(:not([type=next]):not([type=purchase])) .lol-uikit-flat-button.secondary.hover .lol-uikit-flat-button-content-wrapper,
+:host .lol-uikit-flat-button-secondary-wrapper.over .lol-uikit-flat-button-secondary-content { color: #050507 !important; }
+:host(:not([type=next]):not([type=purchase])) .lol-uikit-flat-button.down,
+:host .lol-uikit-flat-button-secondary-wrapper:is(.down, .click) { filter: brightness(0.85); }
+/* disabled: hazard stripes like the Lock In button */
+:host(:not([type=next]):not([type=purchase])) .lol-uikit-flat-button.disabled,
+:host .lol-uikit-flat-button-secondary-wrapper.disabled {
+  --fr: rgba(var(--cc-muted-rgb), 0.35);
+  --fill: repeating-linear-gradient(-45deg, rgba(255, 255, 255, 0.06) 0 6px, rgba(0, 0, 0, 0.5) 6px 12px);
+  color: var(--cc-muted) !important;
+  cursor: default;
+}
+:host .lol-uikit-flat-button-secondary-wrapper.disabled .lol-uikit-flat-button-secondary-content { color: var(--cc-muted) !important; }
+/* window-popup button group (settings DONE): drop Riot's gold side posts and navy plate */
+:host([type=window-popup]) .lol-uikit-flat-button-group { background-color: transparent !important; }
+:host([type=window-popup]) .lol-uikit-flat-button-group::before,
+:host([type=window-popup]) .lol-uikit-flat-button-group::after { display: none; }
+/* custom lobby Spectate: a small chip in the Spectators header, no hazard stripes when unavailable */
+:host(.custom-game-spectate-button) .lol-uikit-flat-button-secondary-wrapper {
+  width: 100% !important; height: 22px !important; min-width: 0 !important; min-height: 0 !important;
+  clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
+  background-size: 6px 6px, 6px 6px, auto !important;
+}
+:host(.custom-game-spectate-button) .lol-uikit-flat-button-secondary-content {
+  font-size: 10px !important; line-height: 22px !important; letter-spacing: 0.18em !important;
+  padding: 0 !important; height: 22px !important;
+}
+:host(.custom-game-spectate-button) .lol-uikit-flat-button-secondary-wrapper.disabled { --fill: transparent; opacity: 0.6; }
+/* custom lobby row dropdowns (bot champion, position, bot difficulty): dark box, readable while open, solid list */
+:host(:is(.custom-bot-champions-dropdown, .custom-member-position, .custom-bot-difficulties-dropdown)) .ui-dropdown-current {
+  background: rgba(5, 5, 7, 0.7) !important;
+  border-color: var(--cc-line) !important;
+  color: var(--cc-text) !important;
+}
+:host(:is(.custom-bot-champions-dropdown, .custom-member-position, .custom-bot-difficulties-dropdown)) .ui-dropdown-current-content { color: var(--cc-text) !important; }
+:host(:is(.custom-bot-champions-dropdown, .custom-member-position, .custom-bot-difficulties-dropdown):is(.active, :hover)) .ui-dropdown-current { border-color: var(--cc-accent) !important; }
+:host(:is(.custom-bot-champions-dropdown, .custom-member-position, .custom-bot-difficulties-dropdown).active) .ui-dropdown-current-content { color: var(--cc-accent) !important; }
+:host(:is(.custom-bot-champions-dropdown, .custom-member-position, .custom-bot-difficulties-dropdown)) .ui-dropdown-options-container {
+  background: #08080b !important;
+  border-color: var(--cc-accent) !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.7);
+}
+/* the champion list only showed four rows at a time */
+:host(.custom-bot-champions-dropdown) .ui-dropdown-options lol-uikit-scrollable { max-height: 236px !important; }
