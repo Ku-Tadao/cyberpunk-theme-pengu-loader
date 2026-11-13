@@ -5010,16 +5010,3 @@ body .lol-social-sidebar .alpha-version-panel { box-shadow: inset 0 1px 0 var(--
 body .lol-social-sidebar .alpha-version-panel .mission-button,
 body .lol-social-sidebar .alpha-version-panel .bug-report-button { filter: hue-rotate(var(--cc-hue, 16deg)) saturate(var(--cc-sat, 1.4)); }
 body .lol-social-sidebar .alpha-version-panel .mission-button .count-badge { filter: hue-rotate(calc(-1 * var(--cc-hue, 16deg))); }
-
-/* Game mode tiles: Riot pins the tile at 185px (170px compact) while the title
-   needs more, so long names ran out of the frame. Size the tile from its card
-   and let the title wrap inside it. */
-body .game-type-card .parties-game-type-upper-half { width: calc(100% - 10px) !important; }
-body .game-type-card .parties-game-type-upper-half .parties-game-type-icon { width: 100% !important; min-width: 0 !important; }
-body .game-type-card .parties-game-type-card-name {
-  box-sizing: border-box;
-  max-width: 100%;
-  padding: 0 6px;
-  text-align: center;
-  overflow-wrap: break-word;
-}
